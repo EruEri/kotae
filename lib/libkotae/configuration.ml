@@ -15,30 +15,16 @@
 (*                                                                                            *)
 (**********************************************************************************************)
 
-open Cmdliner
-
 let name = "kotae"
 
-let version =
-  let s =
-    match Build_info.V1.version () with
-    | None ->
-        "n/a"
-    | Some v ->
-        Build_info.V1.Version.to_string v
-  in
-  Printf.sprintf "%s" s
+let (/) = Filename.concat
+
+let xdg = Xdg.create ~env:Sys.getenv_opt () 
+
+let xdg_data_dir = Xdg.data_dir xdg
+let xdg_config_dir = Xdg.config_dir xdg
+
+let kotae_home_path = xdg_data_dir / name
+let kotae_config_path = xdg_config_dir / name
 
 
-let doc = "A quesion-answer manager"
-
-let man = []
-
-let info = 
-  Cmd.info ~doc ~man ~version name
-
-let subcommands = [Cadd.command; Cinit.command]
-
-let cmd  = Cmd.group info subcommands
-
-let eval () = Cmd.eval cmd

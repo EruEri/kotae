@@ -14,3 +14,7 @@
 (* If not, see <http://www.gnu.org/licenses/>.                                                *)
 (*                                                                                            *)
 (**********************************************************************************************)
+
+
+module Configuration = Configuration
+module Questions = Questions

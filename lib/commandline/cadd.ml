@@ -17,28 +17,45 @@
 
 open Cmdliner
 
-let name = "kotae"
+type t = {
+  path: string
+}
 
-let version =
-  let s =
-    match Build_info.V1.version () with
-    | None ->
-        "n/a"
-    | Some v ->
-        Build_info.V1.Version.to_string v
+let name = "add"
+
+
+let term_path = Arg.(
+  required 
+    & pos 0 (some string) None 
+    & info ~doc:"Path of the subject" ~docv:"subject" []
+)
+
+let term_cmd run =
+  let combine path = run {path}
   in
-  Printf.sprintf "%s" s
+  Term.(const combine $ term_path)
 
 
-let doc = "A quesion-answer manager"
+let doc = "Add questions to $(mname)"
 
-let man = []
+let man = [
 
-let info = 
-  Cmd.info ~doc ~man ~version name
+]
 
-let subcommands = [Cadd.command; Cinit.command]
+let cmd run = 
+  let info = Cmd.info name ~doc ~man in
+  Cmd.v info (term_cmd run)
 
-let cmd  = Cmd.group info subcommands
+let run args = 
+  let {path} = args in
+  let basedir = Filename.dirname path in
+  let code = Sys.command @@ Printf.sprintf "mkdir -p %s" basedir in  
+  let () = match code with
+    | 0 -> ()
+    | _ -> exit code
+  in
+  let questions = Libkotae.Questions.create_from_stdin path in
+  let () = Libkotae.Questions.save path questions in
+  ()
 
-let eval () = Cmd.eval cmd
+let command = cmd run

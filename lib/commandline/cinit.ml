@@ -42,6 +42,11 @@ let cmd run =
 
 let run args = 
   let () = args in
+  let code = Sys.command @@ Printf.sprintf "mkdir -p %s" Libkotae.Configuration.kotae_home_path in
+  let () = match code with
+    | 0 -> ()
+    | _ -> exit 1
+  in
   ()
 
 let command = cmd run
