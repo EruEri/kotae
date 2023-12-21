@@ -1,2 +1,6 @@
 (library
- (name libkotae))
+ (name libkotae)
+ (libraries xdg yojson)
+  (preprocess
+  (pps ppx_deriving_yojson))
+)

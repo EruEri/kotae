@@ -1,5 +1,7 @@
 (lang dune 3.12)
 
+(version "0.1.0")
+
 (name kotae)
 
 (generate_opam_files true)

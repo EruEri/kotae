@@ -15,5 +15,30 @@
 (*                                                                                            *)
 (**********************************************************************************************)
 
+open Cmdliner
 
-let () = exit @@ Commandline.eval ()
+let name = "kotae"
+
+let version =
+  let s =
+    match Build_info.V1.version () with
+    | None ->
+        "n/a"
+    | Some v ->
+        Build_info.V1.Version.to_string v
+  in
+  Printf.sprintf "%s" s
+
+
+let doc = "A quesion-answer manager"
+
+let man = []
+
+let info = 
+  Cmd.info ~doc ~man ~version name
+
+let subcommands = []
+
+let cmd  = Cmd.group info subcommands
+
+let eval () = Cmd.eval cmd

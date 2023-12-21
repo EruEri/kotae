@@ -15,5 +15,13 @@
 (*                                                                                            *)
 (**********************************************************************************************)
 
+type answer =
+| Empty
+| OneOf of string list
+| AllOf of string list
 
-let () = exit @@ Commandline.eval ()
+type question = {
+  question: string;
+  image: string option;
+  answers: answer
+}
