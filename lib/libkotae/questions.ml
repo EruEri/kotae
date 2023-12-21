@@ -32,11 +32,20 @@ type questions = question list
 [@@deriving yojson]
 
 
+let rec ask_question () = 
+  let () = Printf.printf "What is the quesion ?\n>>> %!" in
+  let input = String.trim @@ read_line () in
+  if input = String.empty then
+    let () = Printf.eprintf "No question given !!\n%!" in
+    ask_question ()
+  else
+  input
+
 let rec create_from_stdin image_index path questions = 
   let r_index = ref image_index in
   try 
-    let () = Printf.printf "What is the quesion ?\n>>> %!" in
-    let question = read_line () in
+    
+    let question = ask_question () in
     let () = Printf.printf "Does it has an image ?\n>>> %!" in
     let image_path = String.trim @@ read_line () in
     let image = match image_path with
@@ -48,7 +57,7 @@ let rec create_from_stdin image_index path questions =
           | true ->         
             let name = Filename.basename s in
             let extension = Filename.extension s in
-            let name = Printf.sprintf "%s-%u%s" name !r_index extension in
+            let name = Printf.sprintf "%s%s%s-%u%s" kotae_home_path Filename.dir_sep name !r_index extension in
             let () = incr r_index in
             let image_target = kotae_home_path / path / name in
             let _ = Sys.command @@ Printf.sprintf "cp %s %s" s image_target in
@@ -57,7 +66,7 @@ let rec create_from_stdin image_index path questions =
         end with _ -> 
           let () = Printf.eprintf "File %s doesn't exist\n%!" s in None
     in
-    let () = Printf.printf "Answers ?:\n  - Empty mean no reply\n  - +(answer|...)+ mean all the answers\n  - (answer|...) means one of the anwser\n%!" in
+    let () = Printf.printf "Answers ?:\n  - Empty means no reply\n  - +(answer|...) means all the answers\n  - (answer|...) means one of the anwser\n%!" in
     let () = Printf.printf ">>> " in
     let answer = String.trim @@ read_line () in
     let answer = match answer with
