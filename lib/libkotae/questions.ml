@@ -32,7 +32,8 @@ type questions = question list
 [@@deriving yojson]
 
 
-let rec create_from_stdin path questions = 
+let rec create_from_stdin image_index path questions = 
+  let r_index = ref image_index in
   try 
     let () = Printf.printf "What is the quesion ?\n>>> %!" in
     let question = read_line () in
@@ -46,8 +47,11 @@ let rec create_from_stdin path questions =
           match Sys.is_regular_file s with
           | true ->         
             let name = Filename.basename s in
-            let image_target_dir = kotae_home_path / path in
-            let _ = Sys.command @@ Printf.sprintf "cp %s %s" s image_target_dir in
+            let extension = Filename.extension s in
+            let name = Printf.sprintf "%s-%u%s" name !r_index extension in
+            let () = incr r_index in
+            let image_target = kotae_home_path / path / name in
+            let _ = Sys.command @@ Printf.sprintf "cp %s %s" s image_target in
             Some name
           | false -> let () = Printf.eprintf "File %s doesn't exist\n%!" s in None
         end with _ -> 
@@ -69,11 +73,11 @@ let rec create_from_stdin path questions =
       question; image; answer
     } in 
     let () = Printf.printf "Answer added: %s \n\n" question.question in
-    create_from_stdin path @@ question::questions
+    create_from_stdin !r_index path @@ question::questions
   with End_of_file -> List.rev questions
 
 
-let create_from_stdin path = create_from_stdin path []
+let create_from_stdin path = create_from_stdin 1 path []
 
 
 let save path questions = 
