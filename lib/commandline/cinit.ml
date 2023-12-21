@@ -17,28 +17,31 @@
 
 open Cmdliner
 
-let name = "kotae"
 
-let version =
-  let s =
-    match Build_info.V1.version () with
-    | None ->
-        "n/a"
-    | Some v ->
-        Build_info.V1.Version.to_string v
+type t = unit
+
+let name = "init"
+
+
+let term_cmd run = 
+  let combine () = run ()
   in
-  Printf.sprintf "%s" s
+  Term.(const combine $ const ())
 
 
-let doc = "A quesion-answer manager"
+let doc = "Initialiaze $(mname)"
 
-let man = []
+let man = [
 
-let info = 
-  Cmd.info ~doc ~man ~version name
+]
 
-let subcommands = [Cinit.command]
+let cmd run = 
+  let info = Cmd.info name ~doc ~man in
+  Cmd.v info (term_cmd run)
 
-let cmd  = Cmd.group info subcommands
 
-let eval () = Cmd.eval cmd
+let run args = 
+  let () = args in
+  ()
+
+let command = cmd run
