@@ -47,14 +47,15 @@ let cmd run =
   Cmd.v info (term_cmd run)
 
 let run args = 
+  let open Libkotae.Configuration in
   let {path} = args in
-  let basedir = Filename.dirname path in
-  let code = Sys.command @@ Printf.sprintf "mkdir -p %s" basedir in  
+
+  let questions = Libkotae.Questions.create_from_stdin path in
+  let code = Sys.command @@ Printf.sprintf "mkdir -p %s" (kotae_home_path / path) in  
   let () = match code with
     | 0 -> ()
     | _ -> exit code
   in
-  let questions = Libkotae.Questions.create_from_stdin path in
   let () = Libkotae.Questions.save path questions in
   ()
 

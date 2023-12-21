@@ -40,15 +40,18 @@ let rec create_from_stdin path questions =
     let image_path = String.trim @@ read_line () in
     let image = match image_path with
       | s when s = String.empty -> None
-      | s when try Sys.is_regular_file s with _ -> false ->
+      | s ->
         let open Configuration in
-        let name = Filename.basename s in
-        let image_target_dir = kotae_home_path / path in
-        let _ = Sys.command @@ Printf.sprintf "cp %s %s" s image_target_dir in
-        Some name
-      | s -> 
-        let () = Printf.eprintf "Not a regular file : %s\n" s  in 
-        None
+        try begin
+          match Sys.is_regular_file s with
+          | true ->         
+            let name = Filename.basename s in
+            let image_target_dir = kotae_home_path / path in
+            let _ = Sys.command @@ Printf.sprintf "cp %s %s" s image_target_dir in
+            Some name
+          | false -> let () = Printf.eprintf "File %s doesn't exist\n%!" s in None
+        end with _ -> 
+          let () = Printf.eprintf "File %s doesn't exist\n%!" s in None
     in
     let () = Printf.printf "Answers ?:\n  - Empty mean no reply\n  - +(answer|...)+ mean all the answers\n  - (answer|...) means one of the anwser\n%!" in
     let () = Printf.printf ">>> " in
@@ -75,5 +78,5 @@ let create_from_stdin path = create_from_stdin path []
 
 let save path questions = 
   let open Configuration in
-  let path = Printf.sprintf "%s.json" kotae_home_path / path  in
+  let path = Printf.sprintf "%s%squestion.json" (kotae_home_path / path) Filename.dir_sep  in
   Yojson.Safe.to_file path @@ questions_to_yojson questions
